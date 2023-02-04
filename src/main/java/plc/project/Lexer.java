@@ -130,10 +130,10 @@ public final class Lexer {
         //First case, covers +/- and any numeric characters.
         //First char will always be either +, -, or 0-9 because of LexToken.
 
-        String numberStr = "";
+        List<String> numList = new ArrayList<String>();
         int i = 0;
-        char curChar = chars.get(i);
-        numberStr += curChar;
+        String first = "" + chars.get(i);
+        numList.add(first);
         i++;
 
 
@@ -145,7 +145,7 @@ public final class Lexer {
         boolean decimal = false;
         while(chars.has(i) && (isNumeric(chars.get(i)) || chars.get(i) == '.'))
         {
-            curChar = chars.get(i);
+            char curChar = chars.get(i);
             if(decimal && curChar == '.')
             {
                 break; //you have reached the end of this decimal number, now . is an operator
@@ -164,10 +164,12 @@ public final class Lexer {
                 }
             }
 
-            numberStr += curChar; //add to buffer
+            String toAdd = "" + curChar;
+            numList.add(toAdd); //add to buffer
             i++;
         }
 
+        String[] numberStr = numList.toArray(new String[0]);
         boolean matches = match(numberStr);
 
         if(matches && decimal)
@@ -184,33 +186,39 @@ public final class Lexer {
         }
     }
 
-    public Token lexCharacter() {
+    public Token lexCharacter() { //TODO This whole method is really ugly and I'm gonna try to replace it with String if I have time
 
-        String charStr = "";
+        List<String> charList = new ArrayList<String>();
         char curChar = chars.get(0);
-        charStr += curChar;
+        String quote1 = "" + curChar;
+        charList.add(quote1); //Add \'
 
-        //charstr == '
 
         curChar = chars.get(1);
         if(curChar == '\\') //Escape case
         {
-            charStr += curChar;
+            String slash = "\\" + curChar; //TODO check for necessity of adding the extra slash
+            charList.add(slash);
             if(chars.get(3) == '\''
                     &&
                     (chars.get(2) == 'b' || chars.get(2) == 'n' || chars.get(2) == 'r' || chars.get(2) == 't' || chars.get(2) == '\\' || chars.get(2) == '\'' || chars.get(2) == '\"'))
             {
-                charStr += chars.get(2) + chars.get(3);
+                String val = "" + chars.get(2);
+                charList.add(val); //Add Escape char
+                String quote2 = "" + chars.get(3); //Add ending \'
+                charList.add(quote2);
             }
             else
                 throw new ParseException("Error parsing character", chars.index + 1);
         }
         else if(curChar != '\"' && curChar != '\'' && curChar != '\n' && curChar != '\r')
-        { //Non-escape character
-            charStr += curChar;
+        { //Add non-escaped character
+            String val = "" + curChar;
+            charList.add(val);
             if(chars.get(2) == '\'')
             {
-                charStr +=  chars.get(2);
+                String quote2 = "" + chars.get(2);
+                charList.add(quote2);
             }
             else
             {
@@ -222,6 +230,8 @@ public final class Lexer {
         {
             throw new ParseException("Error parsing character", chars.index);
         }
+
+        String[] charStr = charList.toArray(new String[0]);
 
         boolean matches = match(charStr);
         if(matches)
