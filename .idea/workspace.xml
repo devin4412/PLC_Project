@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="LexIdentifier, LexNumber, and LexCharacter bugfixed">
+    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="Preliminary &quot;finished&quot;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Lexer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/plc/project/LexerTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/plc/project/LexerTests.java" afterDir="false" />
@@ -164,7 +164,7 @@
       <option name="presentableId" value="Default" />
       <updated>1675285979090</updated>
       <workItem from="1675285980127" duration="8001000" />
-      <workItem from="1675527876393" duration="25558000" />
+      <workItem from="1675527876393" duration="26703000" />
     </task>
     <task id="LOCAL-00001" summary="Added peek and match">
       <created>1675289740223</created>
@@ -187,7 +187,14 @@
       <option name="project" value="LOCAL" />
       <updated>1675551637928</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Preliminary &quot;finished&quot;">
+      <created>1675557909135</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1675557909135</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -199,14 +206,15 @@
     <MESSAGE value="Skeleton code added" />
     <MESSAGE value="Working" />
     <MESSAGE value="LexIdentifier, LexNumber, and LexCharacter bugfixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="LexIdentifier, LexNumber, and LexCharacter bugfixed" />
+    <MESSAGE value="Preliminary &quot;finished&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Preliminary &quot;finished&quot;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/plc/project/Lexer.java</url>
-          <line>315</line>
+          <line>323</line>
           <option name="timeStamp" value="61" />
         </line-breakpoint>
       </breakpoints>

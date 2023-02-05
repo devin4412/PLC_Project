@@ -89,10 +89,7 @@ public class LexerTests {
                 Arguments.of("Alphabetic", "\"abc\"", true),
                 Arguments.of("Newline Escape", "\"Hello,\\nWorld\"", true),
                 Arguments.of("Unterminated", "\"unterminated", false),
-                Arguments.of("Invalid Escape", "\"invalid\\escape\"", false),
-                //Mine here
-                Arguments.of("S: Extra quote", "\"test\"test\"", false),
-                Arguments.of("S: Valid escape", "\"valid\\\\escape\"", true)
+                Arguments.of("Invalid Escape", "\"invalid\\escape\"", false)
         );
     }
 

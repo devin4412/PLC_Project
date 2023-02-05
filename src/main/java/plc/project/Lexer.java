@@ -25,8 +25,8 @@ public final class Lexer {
         chars = new CharStream(input);
     }
 
+    /** Helper method start **/
     public boolean isAlpha(char c) {
-
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
     }
 
@@ -44,25 +44,28 @@ public final class Lexer {
             return true;
         return false;
     }
+    /** Helper Method End **/
 
     /**
      * Repeatedly lexes the input using {@link #lexToken()}, also skipping over
      * whitespace where appropriate.
      */
     public List<Token> lex() {
+
         List<Token> tokenList = new ArrayList<Token>();
-        while(chars.has(0)) { //loop through input
+
+        while(chars.has(0)) //loop through input
+        {
             char current = chars.get(0);
-            if(isWhiteSpace(current)) {
+            if(isWhiteSpace(current))
+            {
                 lexEscape();
             }
-            else {
-
+            else
+            {
                 tokenList.add(lexToken());
-
             }
         }
-
         return tokenList;
     }
 
@@ -192,7 +195,7 @@ public final class Lexer {
         }
     }
 
-    public Token lexCharacter() { //TODO This whole method is really ugly and I'm gonna try to replace it with String if I have time
+    public Token lexCharacter() {
 
         List<String> charList = new ArrayList<String>();
         char curChar = chars.get(0);
@@ -203,12 +206,17 @@ public final class Lexer {
         curChar = chars.get(1);
         if(curChar == '\\') //Escape case
         {
-            String slash = "\\" + curChar; //TODO check for necessity of adding the extra slash
+            String slash = "\\" + curChar; //Escape characters are weird man
             charList.add(slash);
             if(chars.get(3) == '\''
-                    &&
-                    (chars.get(2) == 'b' || chars.get(2) == 'n' || chars.get(2) == 'r' || chars.get(2) == 't' || chars.get(2) == '\\' || chars.get(2) == '\'' || chars.get(2) == '\"'))
-            {
+                && (chars.get(2) == 'b'
+                    || chars.get(2) == 'n'
+                    || chars.get(2) == 'r'
+                    || chars.get(2) == 't'
+                    || chars.get(2) == '\\'
+                    || chars.get(2) == '\''
+                    || chars.get(2) == '\"')) {
+
                 String val = "" + chars.get(2);
                 charList.add(val); //Add Escape char
                 String quote2 = "" + chars.get(3); //Add ending \'
@@ -310,7 +318,7 @@ public final class Lexer {
     }
 
     public void lexEscape() {
-        while(chars.has(0))
+        while(chars.has(0)) //always 0 since advance and skip below change the starting point every time
         {
             char tempChar = chars.get(0);
             if(isWhiteSpace(tempChar))
@@ -326,10 +334,12 @@ public final class Lexer {
     public Token lexOperator() {
         List<String> opList = new ArrayList<String>();
         char curChar = chars.get(0);
-        String temp = "\\" + curChar;
-        opList.add(temp);
+        String temp = "\\" + curChar; //Look here if it breaks, this feels like a hack
+        opList.add(temp);             //Kept getting an error with Java's match() that is called in peek()
+                                      //Do "(" chars need to be escaped? If they're in a string I've never seen
+                                      //That issue before. Adding the \\ seems to work though
 
-        if(chars.has(1))
+        if(chars.has(1)) //Allows for an additional equals
         {
             if(chars.get(1) == '=')
             {
