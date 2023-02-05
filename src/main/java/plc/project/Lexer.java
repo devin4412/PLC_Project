@@ -50,7 +50,7 @@ public final class Lexer {
      * Repeatedly lexes the input using {@link #lexToken()}, also skipping over
      * whitespace where appropriate.
      */
-    //Test for git
+
     public List<Token> lex() {
 
         List<Token> tokenList = new ArrayList<Token>();
