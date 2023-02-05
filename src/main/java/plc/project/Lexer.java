@@ -153,14 +153,20 @@ public final class Lexer {
             else if(!decimal && curChar == '.')
             {
 
-                if(chars.has(1) || isNumeric(chars.get(1)))
+                if(chars.has(i + 1) && chars.has(i - 1)) //must have following and trailing digits
                 {
-                    decimal = true;
+                    if(isNumeric(chars.get(i+1)) && isNumeric(chars.get(i-1))) //Must be numbers
+                    {
+                        decimal = true; //It is a decimal
+                    }
+                    else //Somehow non-numerics showed up
+                    {
+                        throw new ParseException("Non numeric characters following decimal", chars.index);
+                    }
                 }
                 else //stream does not have a numeric character following a decimal.
                 {
-                    decimal = false;
-                    break; //therefore, exit the loop since you have finished your number
+                    throw new ParseException("Decimal does not have leading digits", chars.index);
                 }
             }
 
@@ -246,15 +252,102 @@ public final class Lexer {
     }
 
     public Token lexString() {
-        throw new UnsupportedOperationException(); //TODO
+        List<String> strList = new ArrayList<String>();
+        char curChar = chars.get(0);
+        String dQuote1 = "" + curChar;
+        strList.add(dQuote1); //Add \"
+
+        int i = 1;
+        boolean terminated = false;
+        boolean properlyEscaped = false;
+        while(chars.has(i) && !terminated)
+        {
+            String empty = "";
+            curChar = chars.get(i);
+
+            if(curChar == '\"')
+                terminated = true;
+
+            if(curChar == '\\' && !properlyEscaped)
+            {
+                if(chars.has(i+1) && (chars.get(i+1) == 'b' || chars.get(i+1) == 'n' || chars.get(i+1) == 'r' || chars.get(i+1) == 't'
+                        || chars.get(i+1) == '\"'|| chars.get(i+1) == '\''|| chars.get(i+1) == '\\'))  //Doesn't have another character
+                {
+                    empty = "\\";
+                    properlyEscaped = true;
+                } //else if the next character (which must exist) is bnrt " ' or \\
+                else
+                {
+                    throw new ParseException("Invalid escape sequence", chars.index + i);
+                }
+
+            }
+            else if(curChar == '\\' && properlyEscaped)
+            {
+                empty = "\\";
+                properlyEscaped = false;
+            }
+
+            String value = empty + curChar;
+            strList.add(value);
+            i++;
+        }
+
+        String[] strStr = strList.toArray(new String[0]);
+        boolean matches = match(strStr);
+        if(matches && terminated)
+        {
+            return chars.emit(Token.Type.STRING);
+        }
+        else if(matches && !terminated)
+        {
+            throw new ParseException("Error: Unterminated string", chars.index);
+        }
+        else
+        {
+            throw new ParseException("Error matching string", chars.index);
+        }
     }
 
     public void lexEscape() {
-        throw new UnsupportedOperationException(); //TODO
+        while(chars.has(0))
+        {
+            char tempChar = chars.get(0);
+            if(isWhiteSpace(tempChar))
+            {
+                chars.advance();
+                chars.skip();
+            }
+            else
+                break;
+        }
     }
 
     public Token lexOperator() {
-        throw new UnsupportedOperationException(); //TODO
+        List<String> opList = new ArrayList<String>();
+        char curChar = chars.get(0);
+        String temp = "\\" + curChar;
+        opList.add(temp);
+
+        if(chars.has(1))
+        {
+            if(chars.get(1) == '=')
+            {
+                temp = "=";
+                opList.add(temp);
+            }
+        }
+
+        String[] opStr = opList.toArray(new String[0]);
+        boolean matches = match(opStr);
+        if(matches)
+        {
+            return chars.emit(Token.Type.OPERATOR);
+        }
+        else
+        {
+            throw new ParseException("Unexpected character in Operator", chars.index);
+        }
     }
 
     /**
