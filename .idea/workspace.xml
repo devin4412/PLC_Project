@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="Preliminary &quot;finished&quot;">
+    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="amend test">
+      <change afterPath="$PROJECT_DIR$/src/main/java/plc/project/Ast.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/plc/project/Parser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/plc/project/ParserExpressionTests.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/plc/project/LexerTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/plc/project/LexerTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +66,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="JUnit.LexerTests">
+  <component name="RunManager" selected="JUnit.ParserExpressionTests.testFunctionExpression">
     <configuration name="LexerTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PLC_Project.test" />
       <extension name="coverage">
@@ -77,22 +78,6 @@
       <option name="PACKAGE_NAME" value="plc.project" />
       <option name="MAIN_CLASS_NAME" value="plc.project.LexerTests" />
       <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="LexerTests.testCharacter" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="PLC_Project.test" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="plc.project.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="plc.project" />
-      <option name="MAIN_CLASS_NAME" value="plc.project.LexerTests" />
-      <option name="METHOD_NAME" value="testCharacter(java.lang.String,java.lang.String,boolean)" />
-      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -129,7 +114,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="LexerTests.testString" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ParserExpressionTests.testFunctionExpression" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PLC_Project.test" />
       <extension name="coverage">
         <pattern>
@@ -138,8 +123,24 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="plc.project" />
-      <option name="MAIN_CLASS_NAME" value="plc.project.LexerTests" />
-      <option name="METHOD_NAME" value="testString(java.lang.String,java.lang.String,boolean)" />
+      <option name="MAIN_CLASS_NAME" value="plc.project.ParserExpressionTests" />
+      <option name="METHOD_NAME" value="testFunctionExpression(java.lang.String,java.util.List,plc.project.Ast$Expr$Function)" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ParserExpressionTests.testLiteralExpression" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PLC_Project.test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="plc.project.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="plc.project" />
+      <option name="MAIN_CLASS_NAME" value="plc.project.ParserExpressionTests" />
+      <option name="METHOD_NAME" value="testLiteralExpression(java.lang.String,java.util.List,plc.project.Ast$Expr$Literal)" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -147,11 +148,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.ParserExpressionTests.testFunctionExpression" />
+        <item itemvalue="JUnit.ParserExpressionTests.testLiteralExpression" />
         <item itemvalue="JUnit.LexerTests" />
         <item itemvalue="JUnit.LexerTests.testExamples" />
         <item itemvalue="JUnit.LexerTests.testOperator" />
-        <item itemvalue="JUnit.LexerTests.testString" />
-        <item itemvalue="JUnit.LexerTests.testCharacter" />
       </list>
     </recent_temporary>
   </component>
@@ -164,7 +165,9 @@
       <option name="presentableId" value="Default" />
       <updated>1675285979090</updated>
       <workItem from="1675285980127" duration="8001000" />
-      <workItem from="1675527876393" duration="26703000" />
+      <workItem from="1675527876393" duration="26865000" />
+      <workItem from="1676165910934" duration="2982000" />
+      <workItem from="1676731096292" duration="17048000" />
     </task>
     <task id="LOCAL-00001" summary="Added peek and match">
       <created>1675289740223</created>
@@ -194,11 +197,43 @@
       <option name="project" value="LOCAL" />
       <updated>1675557909135</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Bug polishing/Minor changes">
+      <created>1675559062713</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1675559062713</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Test">
+      <created>1675559131663</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1675559131663</updated>
+    </task>
+    <task id="LOCAL-00007" summary="amend test">
+      <created>1675559155297</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1675559155297</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
@@ -207,17 +242,25 @@
     <MESSAGE value="Working" />
     <MESSAGE value="LexIdentifier, LexNumber, and LexCharacter bugfixed" />
     <MESSAGE value="Preliminary &quot;finished&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Preliminary &quot;finished&quot;" />
+    <MESSAGE value="Bug polishing/Minor changes" />
+    <MESSAGE value="Test" />
+    <MESSAGE value="amend test" />
+    <option name="LAST_COMMIT_MESSAGE" value="amend test" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/plc/project/Lexer.java</url>
-          <line>323</line>
+          <line>324</line>
           <option name="timeStamp" value="61" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="JUnit">
+        <watch expression="tokens" language="JAVA" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
