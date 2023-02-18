@@ -191,44 +191,226 @@ public final class Parser {
     /**
      * Parses the {@code expression} rule.
      */
-    public Ast.Expr parseExpression() throws ParseException {
-
-        return parsePrimaryExpression();
+    public Ast.Expr parseExpression() throws ParseException
+    {
+        return parseLogicalExpression();
     }
 
     /**
      * Parses the {@code logical-expression} rule.
      */
-    public Ast.Expr parseLogicalExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+    public Ast.Expr parseLogicalExpression() throws ParseException
+    {
+        //logical_expression ::= comparison_expression (('AND' | 'OR') comparison_expression)*
+        Ast.Expr lhs = parseEqualityExpression();
+
+        while(peek("AND") || peek("OR"))
+        {
+            String binary;
+            if(match("AND"))
+            {
+                binary = "AND";
+            }
+            else if (match("OR"))
+            {
+                binary = "OR";
+            }
+            else
+            {
+                throw new ParseException("Somehow you've entered a while loop using peek and then failed to match? parseLogicalExpressions", tokens.index);
+            }
+
+            if(!tokens.has(0)) //Ensure no hanging operators
+                throw new ParseException("Hanging AND or OR operator", tokens.index);
+
+            Ast.Expr rhs = parseEqualityExpression(); // Then parse rhs
+
+            lhs = new Ast.Expr.Binary(binary, lhs, rhs); //Left side stays as left side, add right side on to it
+
+        }
+
+        return lhs;
     }
 
     /**
      * Parses the {@code equality-expression} rule.
      */
-    public Ast.Expr parseEqualityExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+    public Ast.Expr parseEqualityExpression() throws ParseException
+    {
+        //comparison_expression ::= additive_expression (('<' | '<=' | '>' | '>=' | '==' | '!=') additive_expression)*
+        Ast.Expr lhs = parseAdditiveExpression();
+
+        while(peek("<") || peek("<=") || peek(">") || peek(">=") || peek("==") || peek("!="))
+        {
+            String binary;
+            if(match("<"))
+            {
+                binary = "<";
+            }
+            else if (match("<="))
+            {
+                binary = "<=";
+            }
+            else if (match(">"))
+            {
+                binary = ">";
+            }
+            else if (match(">="))
+            {
+                binary = ">=";
+            }
+            else if (match("=="))
+            {
+                binary = "==";
+            }
+            else if (match("!="))
+            {
+                binary = "!=";
+            }
+            else
+            {
+                throw new ParseException("Hanging equality expression in ParseEqualityExpressions", tokens.index);
+            }
+
+            if(!tokens.has(0)) //Ensure no hanging operators
+                throw new ParseException("Hanging equality operator", tokens.index);
+
+            Ast.Expr rhs = parseAdditiveExpression(); // Then parse rhs
+
+            lhs = new Ast.Expr.Binary(binary, lhs, rhs); //Left side stays as left side, add right side on to it
+
+        }
+
+        return lhs;
     }
 
     /**
      * Parses the {@code additive-expression} rule.
      */
-    public Ast.Expr parseAdditiveExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+    public Ast.Expr parseAdditiveExpression() throws ParseException
+    {
+        //additive_expression ::= multiplicative_expression (('+' | '-') multiplicative_expression)*
+        Ast.Expr lhs = parseMultiplicativeExpression();
+
+        while(peek("+") || peek("-"))
+        {
+            String binary;
+            if(match("+"))
+            {
+                binary = "+";
+            }
+            else if (match("-"))
+            {
+                binary = "-";
+            }
+            else
+            {
+                throw new ParseException("Somehow you've entered a while loop using peek and then failed to match? ParseAdditiveExpressions", tokens.index);
+            }
+
+            if(!tokens.has(0)) //Ensure no hanging operators
+                throw new ParseException("Hanging + or - sign", tokens.index);
+
+            Ast.Expr rhs = parseMultiplicativeExpression(); // Then parse rhs
+
+            lhs = new Ast.Expr.Binary(binary, lhs, rhs); //Left side stays as left side, add right side on to it
+
+        }
+
+        return lhs;
     }
 
     /**
      * Parses the {@code multiplicative-expression} rule.
      */
-    public Ast.Expr parseMultiplicativeExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+    public Ast.Expr parseMultiplicativeExpression() throws ParseException
+    {
+        /*
+         * Loop through tokens if you can peek a * or a /. If you can't, just return the parsed secondary. (Left Hand Side)
+         * If you can match, set the binary string to the matched character, check to make sure there is another
+         * expression with which you are multiplying your left side, then parse that to a temporary Right-Hand-Side (RHS)
+         * holder. Combine these using Ast.Expr.Binary by setting the lhs equal to a binary combination of itself and the rhs.
+         * This will essentially append operations to the right so long as the operators are matched.
+         */
+
+        Ast.Expr lhs = parseSecondaryExpression();
+
+        while(peek("*") || peek("/"))
+        {
+            String binary;
+            if(match("*"))
+            {
+                binary = "*";
+            }
+            else if (match("/"))
+            {
+                binary = "/";
+            }
+            else
+            {
+                throw new ParseException("Somehow you've entered a while loop using peek and then failed to match? ParseMultipleExpressions", tokens.index);
+            }
+
+            if(!tokens.has(0)) //Ensure no hanging operators
+                throw new ParseException("Hanging * or / sign", tokens.index);
+
+            Ast.Expr rhs = parseSecondaryExpression(); // Then parse rhs
+
+            lhs = new Ast.Expr.Binary(binary, lhs, rhs); //Left side stays as left side, add right side on to it
+
+        }
+
+        return lhs;
     }
 
     /**
      * Parses the {@code secondary-expression} rule.
      */
-    public Ast.Expr parseSecondaryExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+    public Ast.Expr parseSecondaryExpression() throws ParseException
+    {
+        Ast.Expr lhs = parsePrimaryExpression();
+        if(peek(".", Token.Type.IDENTIFIER))
+        {
+            match(".");
+
+            String rhsName = tokens.get(0).getLiteral();
+            match(Token.Type.IDENTIFIER);
+
+            if (match("("))
+            {
+                List<Ast.Expr> paramsList = new ArrayList<Ast.Expr>();
+                boolean firstpass = true;
+                boolean hasPreComma = true;
+
+                while(!match(")"))
+                {
+                    if(firstpass)
+                        firstpass = false;
+                    else
+                        hasPreComma = match(",");
+
+                    if(hasPreComma)
+                    {
+                        paramsList.add(parseExpression());
+                        hasPreComma = false;
+                    }
+                    else
+                        throw new ParseException("Invalid function call in secondary expression", tokens.index);
+
+                }
+
+                return new Ast.Expr.Function(Optional.of(lhs), rhsName, paramsList);
+            }
+            else //Accessing a field, won't determine legality of field besides only being identifier
+            {
+                return new Ast.Expr.Access(Optional.of(lhs), rhsName);
+            }
+
+        }
+        else //No decimal case
+        {
+            return lhs;
+        }
     }
 
     /**
