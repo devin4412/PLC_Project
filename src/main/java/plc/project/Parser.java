@@ -84,43 +84,13 @@ public final class Parser {
 
             if(peek("=")) //Assignment case
             {
-                //peek, then match the "="
                 if(match("=") && tokens.has(0) ) //Check to make sure there is RHS to assignment
                 {
                     //If there is, parse that expression and try to match the semicolon
                     Ast.Expr returnedExpr2 = parseExpression(); //Should advance tokens
                     if(tokens.has(0) && match(";")) //Check for final semi
                     {
-                        Ast.Expr.Access lhs, rhs;
-
-                        if(returnedExpr1 instanceof Ast.Expr.Access) //LHS typecasting
-                        {
-                            lhs = (Ast.Expr.Access)returnedExpr1; //TODO look closely at this, is simple cast allowed here
-                        }
-                        else if(returnedExpr1 instanceof Ast.Expr.Literal)
-                        {
-                            lhs = new Ast.Expr.Access(null, (String) ((Ast.Expr.Literal) returnedExpr1).getLiteral());
-                        }
-                        else
-                        {
-                            throw new ParseException("Something is wrong in Assignment LHS. Unexpected token?", tokens.index);
-                        }
-
-
-                        if(returnedExpr2 instanceof Ast.Expr.Access) //RHS typecasting
-                        {
-                            rhs = (Ast.Expr.Access)returnedExpr2; //TODO look closely at this, is simple cast allowed here, does it correctly return an Ast.Expr.Access?
-                        }
-                        else if(returnedExpr2 instanceof Ast.Expr.Literal)
-                        {
-                            rhs = new Ast.Expr.Access(null, (String) ((Ast.Expr.Literal) returnedExpr2).getLiteral());
-                        }
-                        else
-                        {
-                            throw new ParseException("Something is wrong in Assignment RHS. Unexpected token?", tokens.index);
-                        }
-
-                        return new Ast.Stmt.Assignment(lhs, rhs); //Return newly created assignment statement.
+                        return new Ast.Stmt.Assignment(returnedExpr1, returnedExpr2); //Return newly created assignment statement.
                     }
                     else
                     {
@@ -134,8 +104,7 @@ public final class Parser {
             }
             else //Non-assignment expression case
             {
-                boolean semi = peek(";");
-                if(semi && match(";"))
+                if(match(";"))
                     return new Ast.Stmt.Expression(returnedExpr1);
                 else
                     throw new ParseException("Error: Missing semicolon in Expression", tokens.index);
