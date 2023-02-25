@@ -32,7 +32,23 @@ public final class Parser {
      * Parses the {@code source} rule.
      */
     public Ast.Source parseSource() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        List<Ast.Field> fieldList = new ArrayList<Ast.Field>();
+        List<Ast.Method> methodList = new ArrayList<Ast.Method>();
+
+        while(tokens.has(0))
+        {
+            if(peek("LET"))
+            {
+                fieldList.add(parseField());
+            }
+            else if(peek("DEF"))
+            {
+                methodList.add(parseMethod());
+            }
+            else
+                throw new ParseException("Unexpected character in ParseSource()", tokens.index);
+        }
+        return new Ast.Source(fieldList, methodList);
     }
 
     /**
@@ -40,7 +56,52 @@ public final class Parser {
      * next tokens start a field, aka {@code LET}.
      */
     public Ast.Field parseField() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        boolean letMatched = match("LET");
+
+        if(!letMatched)
+        {
+            throw new ParseException("Hmmmmm", tokens.index);
+        }
+        else
+        {
+            if(!peek(Token.Type.IDENTIFIER))
+            {
+                throw new ParseException("Missing identifier in field declaration", tokens.index);
+            }
+            else
+            {
+                String varName = tokens.get(0).getLiteral();
+                match(Token.Type.IDENTIFIER);
+
+                if(peek("="))
+                {
+                    match("=");
+
+                    Ast.Expr rhs = parseExpression();
+
+                    if(!match(";"))
+                        throw new ParseException("Missing semicolon in field", tokens.index);
+
+                    return new Ast.Field(varName, Optional.of(rhs));
+                }
+                else
+                {
+                    if(!peek(";"))
+                    {
+                        throw new ParseException("Missing semicolon in field", tokens.index);
+                    }
+                    else
+                    {
+                        boolean semiMatch = match(";");
+
+                        if(!semiMatch)
+                            throw new ParseException("Missing semicolon in field", tokens.index);
+
+                        return new Ast.Field(varName, Optional.empty());
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -48,7 +109,50 @@ public final class Parser {
      * next tokens start a method, aka {@code DEF}.
      */
     public Ast.Method parseMethod() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        match("DEF");
+
+        if(!peek(Token.Type.IDENTIFIER))
+            throw new ParseException("Missing Identifier in parseMethod", tokens.index);
+
+        String methodName = tokens.get(0).getLiteral();
+        match(Token.Type.IDENTIFIER);
+
+        if(!match("("))
+            throw new ParseException("Method declaration missing (", tokens.index);
+
+        List<String> paramsList = new ArrayList<String>();
+        boolean firstpass = true;
+        boolean hasPreComma = true;
+
+        while(!match(")"))
+        {
+            if(firstpass)
+                firstpass = false;
+            else
+                hasPreComma = match(",");
+
+            if(hasPreComma && peek(Token.Type.IDENTIFIER))
+            {
+                paramsList.add(tokens.get(0).getLiteral());
+                match(Token.Type.IDENTIFIER);
+                hasPreComma = false;
+            }
+            else
+                throw new ParseException("Invalid parameters in method call", tokens.index);
+        }
+
+        if(!match("DO"))
+            throw new ParseException("Missing \"DO\" statement in method declaration", tokens.index);
+
+        List<Ast.Stmt> statementList = new ArrayList<Ast.Stmt>();
+        while(!match("END"))
+        {
+            if(!tokens.has(0))
+                throw new ParseException("Missing \"END\" statement in method declaration", tokens.index);
+            statementList.add(parseStatement());
+        }
+
+        return new Ast.Method(methodName, paramsList, statementList);
     }
 
     /**
@@ -118,7 +222,28 @@ public final class Parser {
      * statement, aka {@code LET}.
      */
     public Ast.Stmt.Declaration parseDeclarationStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        if(!match("LET"))
+            throw new ParseException("Hmmmm", tokens.index);
+        if(!peek(Token.Type.IDENTIFIER))
+            throw new ParseException("Missing Left-Hand-Side of Declaration statement", tokens.index);
+
+        String lhs = tokens.get(0).getLiteral();
+        match(Token.Type.IDENTIFIER);
+
+        if(!peek("=")) //no equal sign case
+        {
+            if(!match(";"))
+                throw new ParseException("Missing semicolon in declaration statement", tokens.index);
+            return new Ast.Stmt.Declaration(lhs, Optional.empty());
+        }
+
+        match("=");
+        Ast.Expr rhs = parseExpression();
+
+        if(!match(";"))
+            throw new ParseException("Missing semicolon in declaration statement", tokens.index);
+
+        return new Ast.Stmt.Declaration(lhs, Optional.of(rhs));
     }
 
     /**
@@ -127,7 +252,37 @@ public final class Parser {
      * {@code IF}.
      */
     public Ast.Stmt.If parseIfStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        boolean ifMatch = match("IF"); //value caught for debug
+
+        Ast.Expr condition = parseExpression();
+
+        if(!match("DO"))
+            throw new ParseException("Missing \"DO\" in ParseIfStatement", tokens.index);
+
+        List<Ast.Stmt> thenStatements = new ArrayList<Ast.Stmt>();
+        List<Ast.Stmt> elseStatements = new ArrayList<Ast.Stmt>();
+
+        while(!peek("ELSE") && !peek("END")) //"THEN" Statements, go until finished or an ELSE
+        {
+            if(!tokens.has(0) && !peek("END"))
+                throw new ParseException("Misssing END statement in ParseIF", tokens.index);
+            thenStatements.add(parseStatement());
+        }
+
+        if(match("ELSE"))
+        {
+            while(!peek("END")) //"THEN" Statements, go until finished or an ELSE
+            {
+                if(!tokens.has(0) && !peek("END"))
+                    throw new ParseException("Misssing END statement in ParseIF", tokens.index);
+                elseStatements.add(parseStatement());
+            }
+        }
+
+        if(!match("END"))
+            throw new ParseException("Missing END statement in ParseIf", tokens.index);
+
+        return new Ast.Stmt.If(condition, thenStatements, elseStatements);
     }
 
     /**
@@ -136,7 +291,36 @@ public final class Parser {
      * {@code FOR}.
      */
     public Ast.Stmt.For parseForStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        boolean forMatch = match("FOR");
+
+        if(!peek(Token.Type.IDENTIFIER))
+            throw new ParseException("Missing name in ParseFor", tokens.index);
+
+        String name = tokens.get(0).getLiteral();
+        match(Token.Type.IDENTIFIER);
+
+        if(!match("IN"))
+            throw new ParseException("Missing IN in ParseFor", tokens.index);
+
+        if(!tokens.has(0))
+            throw new ParseException("Missing exprsesion after IN in ParseFor", tokens.index);
+
+        Ast.Expr value = parseExpression();
+
+        if(!match("DO"))
+            throw new ParseException("Missing DO in ParseFor", tokens.index);
+
+        List<Ast.Stmt> stmtList = new ArrayList<Ast.Stmt>();
+
+        while(!match("END"))
+        {
+            if(!tokens.has(0) && !peek("END"))
+                throw new ParseException("Missing END statement in ParseFor", tokens.index);
+
+            stmtList.add(parseStatement());
+        }
+
+        return new Ast.Stmt.For(name, value, stmtList);
     }
 
     /**
@@ -145,7 +329,27 @@ public final class Parser {
      * {@code WHILE}.
      */
     public Ast.Stmt.While parseWhileStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        boolean whileMatch = match("WHILE");
+
+        if(!tokens.has(0))
+            throw new ParseException("Missing expression after WHILE", tokens.index);
+
+        Ast.Expr condition = parseExpression();
+
+        if(!match("DO"))
+            throw new ParseException("Missing DO in ParseWhile", tokens.index);
+
+        List<Ast.Stmt> stmtList = new ArrayList<Ast.Stmt>();
+
+        while(!match("END"))
+        {
+            if(!tokens.has(0) && !peek("END"))
+                throw new ParseException("Missing END statement in ParseWhile", tokens.index);
+
+            stmtList.add(parseStatement());
+        }
+
+        return new Ast.Stmt.While(condition, stmtList);
     }
 
     /**
@@ -154,7 +358,17 @@ public final class Parser {
      * {@code RETURN}.
      */
     public Ast.Stmt.Return parseReturnStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        boolean returnMatch = match("RETURN");
+
+        if(!tokens.has(0))
+            throw new ParseException("Missing expression after RETURN in ParseReturn", tokens.index);
+
+        Ast.Expr returnValue = parseExpression();
+
+        if(!match(";"))
+            throw new ParseException("Missing semicolon in ParseReturn", tokens.index);
+
+        return new Ast.Stmt.Return(returnValue);
     }
 
     /**
