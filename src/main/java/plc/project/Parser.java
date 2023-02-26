@@ -632,7 +632,8 @@ public final class Parser {
         else if(peek(Token.Type.CHARACTER))
         {
             String replacement = tokens.get(0).getLiteral(); //Find and replace escape chars
-            replacement = replacement.replaceAll("\'", "");
+            replacement = replacement.replaceAll("\\\\\"", "\"");
+            replacement = replacement.replaceAll("\\\\\'", "\'");
             replacement = replacement.replaceAll("\\\\b", "\b");
             replacement = replacement.replaceAll("\\\\n", "\n");
             replacement = replacement.replaceAll("\\\\r", "\r");
@@ -648,7 +649,8 @@ public final class Parser {
         else if(peek(Token.Type.STRING))
         {
             String replacement = tokens.get(0).getLiteral();
-            replacement = replacement.replaceAll("\"", "");
+            replacement = replacement.replaceAll("\\\\\"", "\"");
+            replacement = replacement.replaceAll("\\\\\'", "\'");
             replacement = replacement.replaceAll("\\\\b", "\b");
             replacement = replacement.replaceAll("\\\\n", "\n");
             replacement = replacement.replaceAll("\\\\r", "\r");

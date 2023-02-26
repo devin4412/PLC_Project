@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="Parser cleaned">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="Working first version. Going to clean and then submit.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/plc/project/ParserExpressionTests.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,7 +165,7 @@
       <workItem from="1676165910934" duration="2982000" />
       <workItem from="1676731096292" duration="17358000" />
       <workItem from="1676755694962" duration="10904000" />
-      <workItem from="1677353772970" duration="13956000" />
+      <workItem from="1677353772970" duration="15045000" />
     </task>
     <task id="LOCAL-00001" summary="Added peek and match">
       <created>1675289740223</created>
@@ -240,7 +237,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676766370529</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Working first version. Going to clean and then submit.">
+      <created>1677369050801</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1677369050802</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -270,7 +274,8 @@
     <MESSAGE value="Parser added, most of primaryParseExpression done." />
     <MESSAGE value="Parser passes all given tests." />
     <MESSAGE value="Parser cleaned" />
-    <option name="LAST_COMMIT_MESSAGE" value="Parser cleaned" />
+    <MESSAGE value="Working first version. Going to clean and then submit." />
+    <option name="LAST_COMMIT_MESSAGE" value="Working first version. Going to clean and then submit." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
