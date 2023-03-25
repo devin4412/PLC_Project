@@ -25,22 +25,42 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Source ast) {
-        throw new UnsupportedOperationException(); //TODO
+        for(Ast.Stmt.Field field : ast.getFields())
+        {
+            visit(field);
+        }
+
+        for(Ast.Stmt.Method method : ast.getMethods())
+        {
+            visit(method);
+        }
+        //TODO check for main presence
+        return Environment.NIL;
     }
 
     @Override
-    public Environment.PlcObject visit(Ast.Field ast) {
-        throw new UnsupportedOperationException(); //TODO
+    public Environment.PlcObject visit(Ast.Field ast) { //It's the same as Declaration
+        if(ast.getValue().isPresent())
+        {
+            scope.defineVariable(ast.getName(), visit(ast.getValue().get()));
+        }
+        else //isPresent() == false, default to NIL
+        {
+            scope.defineVariable(ast.getName(), Environment.NIL);
+        }
+        return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Method ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //ast.
+        return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Expression ast) {
-        throw new UnsupportedOperationException(); //TODO
+        visit(ast.getExpression());
+        return Environment.NIL;
     }
 
     @Override
@@ -59,18 +79,70 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Assignment ast) {
-       // requireType(Ast.Expr.Access.class, visit(ast.getReceiver()))
-        throw new UnsupportedOperationException(); //TODO
+        if(!(ast.getReceiver() instanceof Ast.Expr.Access))
+            throw new RuntimeException("Assignment RHS is not access variable");
+
+        Ast.Expr.Access lhs = (Ast.Expr.Access)ast.getReceiver();
+
+        if(lhs.getReceiver().isPresent()) //Has field
+        {
+
+        }
+        else //No field
+        {
+            Environment.Variable var = scope.lookupVariable(lhs.getName());
+            var.setValue(Environment.create(ast.getValue()));
+        }
+        return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.If ast) {
-        throw new UnsupportedOperationException(); //TODO
+
+        if(requireType(Boolean.class, visit(ast.getCondition())))
+        {
+            try
+            {
+                scope = new Scope(scope);
+                for (Ast.Stmt stmt : ast.getThenStatements())
+                {
+                    visit(stmt);
+                }
+            }
+            finally
+            {
+                scope = scope.getParent();
+            }
+        }
+        else
+        {
+            try
+            {
+                scope = new Scope(scope);
+                for (Ast.Stmt stmt : ast.getElseStatements())
+                {
+                    visit(stmt);
+                }
+            }
+            finally
+            {
+                scope = scope.getParent();
+            }
+        }
+        return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.For ast) {
-        throw new UnsupportedOperationException(); //TODO
+        Iterable iterator = requireType(Iterable.class, visit(ast.getValue()));
+        try {
+            scope = new Scope(scope); //New scope created por for loop
+            for(Object obj : iterator)
+                ast.getStatements().forEach(this::visit);
+        } finally {
+            scope = scope.getParent(); //Escaping back up to outside of while scope
+        }
+        return Environment.NIL;
     }
 
     @Override
@@ -80,10 +152,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         {
             try {
                 scope = new Scope(scope); //New scope created for while loop
-                for (Ast.Stmt stmt : ast.getStatements())
-                {
-                    visit(stmt);
-                }
+                ast.getStatements().forEach(this::visit);
             } finally {
                 scope = scope.getParent(); //Escaping back up to outside of while scope
             }
@@ -98,7 +167,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Literal ast) {
-        if(ast.getLiteral() == null) {
+        if(ast.getLiteral().equals(null)) {
             return Environment.NIL;
         }
         else {
@@ -108,7 +177,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Group ast) {
-        throw new UnsupportedOperationException(); //TODO
+        return visit(ast.getExpression());
     }
 
     @Override
@@ -361,7 +430,17 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Access ast) {
-        throw new UnsupportedOperationException(); //TODO
+        if(ast.getReceiver().isPresent()) //Has receiver, return
+        {
+            Environment.PlcObject receiverValue = visit(ast.getReceiver().get()); //Visit your receiver to get its name
+            Environment.Variable branch = receiverValue.getField(ast.getName());  //Lookup said name within the receiverObj
+            return branch.getValue(); //Return value from said lookup
+        }
+        else //No receiver
+        {
+            Environment.Variable var = scope.lookupVariable(ast.getName()); //lookup name in global scope
+            return var.getValue(); //return it
+        }
     }
 
     @Override
