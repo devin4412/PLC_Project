@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,8 +35,9 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         {
             visit(method);
         }
-        //TODO check for main presence
-        return Environment.NIL;
+
+        Environment.Function main = scope.lookupFunction("main", 0);
+        return main.invoke(Arrays.asList());
     }
 
     @Override
@@ -53,7 +55,31 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Method ast) {
-        //ast.
+        int arity = ast.getParameters().size();
+
+        List<String> params = ast.getParameters();
+        List<Ast.Stmt> statements = ast.getStatements();
+        Scope methodDeclaration = new Scope(scope);
+
+        scope.defineFunction(ast.getName(), arity, args -> { //I can't get this to work and I am running out of time :(
+            for(int i = 0; i < arity; i++) {
+                methodDeclaration.defineVariable(params.get(i), Environment.NIL);
+            } //Define new variables in new scope from parameter string names, init to NIL
+
+            for(int i = 0; i < statements.size(); i++) {
+                try {
+                    Environment.PlcObject capture = visit(statements.get(i));
+                }
+                catch(Return r)
+                {
+                    scope = methodDeclaration.getParent();
+                    return r.value;
+                }
+            }
+            scope = methodDeclaration.getParent();
+            return Environment.NIL;
+        });
+
         return Environment.NIL;
     }
 
@@ -86,12 +112,13 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
         if(lhs.getReceiver().isPresent()) //Has field
         {
-
+            Environment.PlcObject object = visit(lhs.getReceiver().get());
+            object.setField(lhs.getName(), visit(ast.getValue()));
         }
         else //No field
         {
             Environment.Variable var = scope.lookupVariable(lhs.getName());
-            var.setValue(Environment.create(ast.getValue()));
+            var.setValue(visit(ast.getValue()));
         }
         return Environment.NIL;
     }
@@ -135,12 +162,15 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Stmt.For ast) {
         Iterable iterator = requireType(Iterable.class, visit(ast.getValue()));
-        try {
-            scope = new Scope(scope); //New scope created por for loop
-            for(Object obj : iterator)
-                ast.getStatements().forEach(this::visit);
-        } finally {
-            scope = scope.getParent(); //Escaping back up to outside of while scope
+        for(Object obj : iterator) //for each in the iterator
+        {
+            try {
+                scope = new Scope(scope); //New scope created por for loop
+                for(Ast.Stmt statement : ast.getStatements())
+                    visit(statement);
+            } finally {
+                scope = scope.getParent(); //Escaping back up to outside of while scope
+            }
         }
         return Environment.NIL;
     }
@@ -162,12 +192,13 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Return ast) {
-        throw new UnsupportedOperationException(); //TODO
+        Environment.PlcObject returnVal = visit(ast.getValue());
+        throw new Return(returnVal);
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Literal ast) {
-        if(ast.getLiteral().equals(null)) {
+        if(ast.getLiteral() == null) {
             return Environment.NIL;
         }
         else {
@@ -445,7 +476,24 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Function ast) {
-        throw new UnsupportedOperationException(); //TODO
+        List<Ast.Expr> args = ast.getArguments(); //Get the args
+        List<Environment.PlcObject> objectArgs = new ArrayList<Environment.PlcObject>();
+        for(Ast.Expr expr : args)
+        {
+            objectArgs.add(Environment.create(expr));
+        }
+
+        if(ast.getReceiver().isPresent())
+        {
+            Environment.PlcObject receiverValue = visit(ast.getReceiver().get());
+            return receiverValue.callMethod(ast.getName(), objectArgs);
+        }
+        else //No receiver
+        {
+            Environment.Function func = scope.lookupFunction(ast.getName(), args.size());
+            return func.invoke(objectArgs);
+        }
+
     }
 
     /**
