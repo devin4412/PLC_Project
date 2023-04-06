@@ -63,7 +63,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
         scope.defineFunction(ast.getName(), arity, args -> { //I can't get this to work and I am running out of time :(
             for(int i = 0; i < arity; i++) {
-                methodDeclaration.defineVariable(params.get(i), Environment.NIL);
+                methodDeclaration.defineVariable(params.get(i), args.get(i));
             } //Define new variables in new scope from parameter string names, init to NIL
 
             for(int i = 0; i < statements.size(); i++) {
