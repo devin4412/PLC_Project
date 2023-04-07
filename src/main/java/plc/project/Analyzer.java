@@ -78,7 +78,32 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.If ast) {
-        throw new UnsupportedOperationException();  // TODO
+
+        visit(ast.getCondition());
+
+        requireAssignable(ast.getCondition().getType(), Environment.Type.BOOLEAN);
+
+        List<Ast.Stmt> thenStatements = ast.getThenStatements();
+        List<Ast.Stmt> elseStatements = ast.getElseStatements();
+
+        if(thenStatements.isEmpty())
+            throw new RuntimeException("IF statement is missing body after DO (No then statements)");
+
+        Scope thenScope = new Scope(scope); //Create new scope for then
+        for(Ast.Stmt statement : thenStatements) //Do then
+            visit(statement);
+
+        scope = thenScope.getParent(); //Escape thenscope
+
+        if(!elseStatements.isEmpty()) //Else exists
+        {
+            Scope elseScope = new Scope(scope); //Else scope entry
+            for(Ast.Stmt statement : elseStatements) //Do else
+                visit(statement);
+            scope = elseScope.getParent(); //Else scope exit
+        }
+
+        return null;
     }
 
     @Override
@@ -87,8 +112,32 @@ public final class Analyzer implements Ast.Visitor<Void> {
     }
 
     @Override
-    public Void visit(Ast.Stmt.While ast) {
-        throw new UnsupportedOperationException();  // TODO
+    public Void visit(Ast.Stmt.While ast)
+    {
+        // Condition may very well be larger than just TRUE, i.e. X AND Y evaluates to a boolean. Which would be valid.
+        // Therefore, I need to evaluate the condition first by visiting it.
+
+        visit(ast.getCondition());
+
+        //By visiting this condition, it will evaluate it to its simplest form and assign it a type.
+        //If I didn't visit this condition, then While would get stuck at the start, since an expression is
+        //Untyped until visited.
+
+        requireAssignable(ast.getCondition().getType(), Environment.Type.BOOLEAN);
+
+        //I can still call ast.getCond.getType()
+        //Because it has now FOR SURE been visited.
+
+        List<Ast.Stmt> whileBody = ast.getStatements();
+
+        Scope whileScope = new Scope(scope);
+
+        for(Ast.Stmt statement : whileBody)
+        {
+            visit(statement);
+        }
+
+        return null;
     }
 
     @Override
@@ -98,7 +147,54 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Literal ast) {
-        throw new UnsupportedOperationException();  // TODO
+        Object literal = ast.getLiteral();
+
+        if (literal instanceof Boolean)
+        {
+            ast.setType(Environment.Type.BOOLEAN);
+        }
+        else if(literal instanceof Character)
+        {
+            ast.setType(Environment.Type.CHARACTER);
+        }
+        else if(literal instanceof String)
+        {
+            ast.setType(Environment.Type.STRING);
+        }
+        else if(literal instanceof BigInteger)
+        {
+            BigInteger literalInt = (BigInteger)literal;
+            if(literalInt.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0
+                    || literalInt.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0)
+
+            {
+                throw new RuntimeException("Integer value exceeds given bounds");
+            }
+            //else
+            ast.setType(Environment.Type.INTEGER);
+        }
+        else if(literal instanceof BigDecimal)
+        {
+            BigDecimal literalDec = (BigDecimal)literal;
+
+            Double literalDub = literalDec.doubleValue();
+
+            Double negInf = Double.NEGATIVE_INFINITY;
+            Double posInf = Double.POSITIVE_INFINITY;
+
+            if(literalDub.equals(negInf) || literalDub.equals(posInf))
+            {
+                throw new RuntimeException("Double value exceeds given bounds");
+            }
+
+            ast.setType(Environment.Type.DECIMAL);
+        }
+        else //literal.equals(null)
+        {
+            ast.setType(Environment.Type.NIL);
+        }
+
+        return null;
     }
 
     @Override
@@ -108,7 +204,41 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Binary ast) {
-        throw new UnsupportedOperationException();  // TODO
+
+        String op = ast.getOperator();
+
+        if (op.equals("AND") || op.equals("OR"))
+        {
+            //Both of the operands and the result must be boolean
+        }
+        else if (op.equals("<") ||
+                op.equals("<=") ||
+                op.equals(">") ||
+                op.equals(">=") ||
+                op.equals("==") ||
+                op.equals("!=")) {
+
+            //Both comparable and SAME TYPE
+            //Result is boolean
+
+        }
+        else if (op.equals("+"))
+        {
+            //If either side is string, concatenate
+            //Otherwise, left must be Int/Dec, whatever it is the right side and result must be the same
+        }
+        else if (op.equals("-") ||
+                op.equals("*") ||
+                op.equals("/"))
+        {
+            //Same as above without concatenation
+        }
+        else
+        {
+            throw new RuntimeException("Unrecognized operator in Ast.Expr.Binary");
+        }
+
+        return null;
     }
 
     @Override
