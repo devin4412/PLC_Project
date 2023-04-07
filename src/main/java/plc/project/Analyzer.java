@@ -73,7 +73,15 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Assignment ast) {
-        throw new UnsupportedOperationException();  // TODO
+        visit(ast.getReceiver());
+        visit(ast.getValue());
+
+        if(!(ast.getReceiver() instanceof Ast.Expr.Access))
+            throw new RuntimeException("Receiver is not an access expression");
+
+        requireAssignable(ast.getReceiver().getType(), ast.getValue().getType());
+
+        return null;
     }
 
     @Override
@@ -199,7 +207,16 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Group ast) {
-        throw new UnsupportedOperationException();  // TODO
+        visit(ast.getExpression());
+
+        Ast.Expr expression = ast.getExpression();
+
+        if(!(expression instanceof Ast.Expr.Binary))
+            throw new RuntimeException("Grouped expression is not Binary");
+
+        ast.setType(ast.getExpression().getType());
+
+        return null;
     }
 
     @Override
@@ -207,9 +224,23 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
         String op = ast.getOperator();
 
+        visit(ast.getLeft());
+        visit(ast.getRight());
+
+        Ast.Expr lhs = ast.getLeft();
+        Ast.Expr rhs = ast.getRight();
+
+        Environment.Type lhsType = lhs.getType();
+        Environment.Type rhsType = rhs.getType();
+
         if (op.equals("AND") || op.equals("OR"))
         {
             //Both of the operands and the result must be boolean
+            requireAssignable(lhsType, Environment.Type.BOOLEAN);
+            requireAssignable(rhsType, Environment.Type.BOOLEAN);
+            //LHS and RHS are now sure to be boolean
+
+            ast.setType(Environment.Type.BOOLEAN);
         }
         else if (op.equals("<") ||
                 op.equals("<=") ||
@@ -221,17 +252,65 @@ public final class Analyzer implements Ast.Visitor<Void> {
             //Both comparable and SAME TYPE
             //Result is boolean
 
+            requireAssignable(lhsType, Environment.Type.COMPARABLE);
+            requireAssignable(rhsType, Environment.Type.COMPARABLE);
+
+            if(lhsType.getName().compareTo(rhsType.getName()) != 0)
+                throw new RuntimeException("Mismatched comparable types in binary expression");
+
+            ast.setType(Environment.Type.BOOLEAN);
         }
         else if (op.equals("+"))
         {
             //If either side is string, concatenate
             //Otherwise, left must be Int/Dec, whatever it is the right side and result must be the same
+
+            if(lhsType.getName().equals("String") || rhsType.getName().equals("String"))
+            {
+                ast.setType(Environment.Type.STRING);
+            }
+            else //Not concatenation
+            {
+                if(lhsType.getName().equals("Integer"))
+                {
+                    if(rhsType.getName().compareTo("Integer") != 0)
+                        throw new RuntimeException("lhs is integer, rhs is not");
+
+                    ast.setType(Environment.Type.INTEGER);
+                }
+                else if(lhsType.getName().equals("Decimal"))
+                {
+                    if(rhsType.getName().compareTo("Decimal") != 0)
+                        throw new RuntimeException("lhs is decimal, rhs is not");
+
+                    ast.setType(Environment.Type.DECIMAL);
+                }
+                else
+                    throw new RuntimeException("Unexpected type in addition statement");
+            }
         }
         else if (op.equals("-") ||
                 op.equals("*") ||
                 op.equals("/"))
         {
             //Same as above without concatenation
+
+            if(lhsType.getName().compareTo("Integer") == 0)
+            {
+                if(rhsType.getName().compareTo("Integer") != 0)
+                    throw new RuntimeException("lhs is integer, rhs is not");
+
+                ast.setType(Environment.Type.INTEGER);
+            }
+            else if(lhsType.getName().equals("Decimal"))
+            {
+                if(rhsType.getName().compareTo("Decimal") != 0)
+                    throw new RuntimeException("lhs is decimal, rhs is not");
+
+                ast.setType(Environment.Type.DECIMAL);
+            }
+            else
+                throw new RuntimeException("Unexpected type in binary statement");
         }
         else
         {
@@ -243,12 +322,30 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Access ast) {
-        throw new UnsupportedOperationException();  // TODO
+
+        if(ast.getReceiver().isPresent()) //Receiver is present (object.**receiver**)
+        {
+            visit(ast.getReceiver().get()); //Visit it to evaluate. Will probably bring you back right here?
+            Ast.Expr received = ast.getReceiver().get(); //Object
+            //must be access
+            if(!(received instanceof Ast.Expr.Access))
+                throw new RuntimeException("Attempting to access unaccessible field");
+
+            Scope objScope = received.getType().getScope(); //Found it
+
+            ast.setVariable(objScope.lookupVariable(ast.getName()));
+        }
+        else //No receiver, just a field case
+        {
+            ast.setVariable(scope.lookupVariable(ast.getName())); //"otherwise it is a variable in the current scope"
+        }
+        return null;
     }
 
     @Override
     public Void visit(Ast.Expr.Function ast) {
-        throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();  // TODO
+        return null;
     }
 
     public static void requireAssignable(Environment.Type target, Environment.Type type) {
