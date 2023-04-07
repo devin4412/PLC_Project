@@ -42,7 +42,14 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Expression ast) {
-        throw new UnsupportedOperationException();  // TODO
+        visit(ast.getExpression());
+
+        Ast.Expr expression = ast.getExpression();
+
+        if(!(expression instanceof Ast.Expr.Function))
+            throw new RuntimeException("Expression is not a function");
+
+        return null;
     }
 
     @Override
@@ -116,7 +123,26 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.For ast) {
-        throw new UnsupportedOperationException();  // TODO
+        visit(ast.getValue());
+        Ast.Expr condition = ast.getValue();
+
+        List<Ast.Stmt> stmtList = ast.getStatements();
+
+        if(condition.getType().getName().compareTo("IntegerIterable") != 0)
+            throw new RuntimeException("Value is not of type IntegerIterable");
+
+        if(stmtList.isEmpty())
+            throw new RuntimeException("For loop has no body");
+
+        Scope forScope = new Scope(scope);
+        forScope.defineVariable(ast.getName(), ast.getName(), Environment.Type.INTEGER, Environment.NIL);
+
+        for(Ast.Stmt stmt : stmtList)
+            visit(stmt);
+
+        scope = forScope.getParent();
+
+        return null;
     }
 
     @Override
@@ -233,7 +259,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
         Environment.Type lhsType = lhs.getType();
         Environment.Type rhsType = rhs.getType();
 
-        if (op.equals("AND") || op.equals("OR"))
+        if(op.equals("AND") || op.equals("OR"))
         {
             //Both of the operands and the result must be boolean
             requireAssignable(lhsType, Environment.Type.BOOLEAN);
@@ -344,7 +370,35 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Function ast) {
-        //throw new UnsupportedOperationException();  // TODO
+        List<Ast.Expr> argList = ast.getArguments();
+        for(Ast.Expr expr : argList) //give arguments types
+            visit(expr);
+
+        if(ast.getReceiver().isPresent()) //Object.function()
+        {
+            visit(ast.getReceiver().get());
+            Ast.Expr receiver = ast.getReceiver().get();
+
+            if(!(receiver instanceof Ast.Expr.Access))
+                throw new RuntimeException("Attempting to access unaccessible function");
+
+            Ast.Expr.Access received = (Ast.Expr.Access)receiver;
+
+            Scope objScope = received.getType().getScope();
+
+            ast.setFunction(objScope.lookupFunction(ast.getName(), argList.size() + 1)); //Accounts for the IMPORTANT note
+        }
+        else //function()
+        {
+            ast.setFunction(scope.lookupFunction(ast.getName(), argList.size()));
+
+            Environment.Function func = ast.getFunction();
+            List<Environment.Type> parameterTypesList = func.getParameterTypes();
+
+            for(int i = 1; i < parameterTypesList.size(); i++)
+                requireAssignable(argList.get(i-1).getType(), parameterTypesList.get(i));
+        }
+
         return null;
     }
 
