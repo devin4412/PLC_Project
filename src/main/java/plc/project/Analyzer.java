@@ -2,6 +2,7 @@ package plc.project;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +72,33 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Method ast) {
-        throw new UnsupportedOperationException();  // TODO
+        String returnType = null;
+        if(ast.getReturnTypeName().isPresent())
+        {
+            returnType = ast.getReturnTypeName().get();
+        }
+
+        List<String> typeNames =  ast.getParameterTypeNames();
+        List<String> parameters = ast.getParameters();
+        List<Environment.Type> paramTypes = new ArrayList<Environment.Type>();
+        for(String type : typeNames)
+            paramTypes.add(Environment.getType(type));
+
+        ast.setFunction(scope.defineFunction(ast.getName(), ast.getName(), paramTypes,Environment.getType(returnType), args -> Environment.NIL));
+
+        method = ast; //Coordinating with the return node
+        scope = new Scope(scope); //New Scope
+
+        for(int i = 0; i < parameters.size(); i++) //Defining parameters as variables
+            scope.defineVariable(parameters.get(i), parameters.get(i), Environment.getType(typeNames.get(i)), Environment.NIL);
+
+        List<Ast.Stmt> stmtList = ast.getStatements();
+        for(Ast.Stmt statement : stmtList)
+            visit(statement);
+
+        scope = scope.getParent(); //exiting method scope
+        method = null;
+        return null;
     }
 
     @Override
@@ -210,7 +237,14 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Return ast) {
-        throw new UnsupportedOperationException();  // TODO
+        String typename = method.getReturnTypeName().get();
+
+        visit(ast.getValue());
+        Ast.Expr val = ast.getValue();
+
+        requireAssignable(Environment.getType(typename), val.getType());
+
+        return null;
     }
 
     @Override
