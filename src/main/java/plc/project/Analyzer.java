@@ -27,12 +27,46 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Source ast) {
-        throw new UnsupportedOperationException();  // TODO
+        Environment.Function main = null;
+        try
+        {
+            main = scope.lookupFunction("main", 0);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ast.Source is missing a main/0 function");
+        }
+
+        if(main.getReturnType().getName().compareTo("Integer") != 0)
+            throw new RuntimeException("Ast.Source has main, but main is mising correct return type of Integer");
+
+        List<Ast.Field> fieldsList = ast.getFields();
+        for(Ast.Field field : fieldsList)
+            visit(field);
+
+        List<Ast.Method> methodsList = ast.getMethods();
+        for(Ast.Method method : methodsList)
+            visit(method);
+
+        return null;
     }
 
     @Override
     public Void visit(Ast.Field ast) {
-        throw new UnsupportedOperationException();  // TODO
+        String typeName = ast.getTypeName();
+
+        if(ast.getValue().isPresent()) //Initialized to a value
+        {
+            visit(ast.getValue().get());
+
+            Environment.Type type = ast.getValue().get().getType();
+
+            requireAssignable(Environment.getType(typeName), type); //Same method as requireAssignable, the first has just been changed to a string because it's way easier
+        }
+
+        Environment.Variable var = scope.defineVariable(ast.getName(), ast.getName(), Environment.getType(typeName), Environment.NIL);
+        ast.setVariable(var);
+
+        return null;
     }
 
     @Override
@@ -424,5 +458,4 @@ public final class Analyzer implements Ast.Visitor<Void> {
             }
         }
     }
-
 }
