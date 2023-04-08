@@ -239,10 +239,13 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Return ast) {
-        String typename = method.getReturnTypeName().get();
-
         visit(ast.getValue());
         Ast.Expr val = ast.getValue();
+
+        if(!(method.getReturnTypeName().isPresent()))
+            throw new RuntimeException("Returning a value with no return type");
+
+        String typename = method.getReturnTypeName().get();
 
         requireAssignable(Environment.getType(typename), val.getType());
 
