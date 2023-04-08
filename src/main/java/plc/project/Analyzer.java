@@ -38,7 +38,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
         }
 
         if(main.getReturnType().getName().compareTo("Integer") != 0)
-            throw new RuntimeException("Ast.Source has main, but main is mising correct return type of Integer");
+            throw new RuntimeException("Ast.Source has main, but main is missing correct return type of Integer");
 
         List<Ast.Field> fieldsList = ast.getFields();
         for(Ast.Field field : fieldsList)
@@ -72,7 +72,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Method ast) {
-        String returnType = null;
+        String returnType = "Nil";
         if(ast.getReturnTypeName().isPresent())
         {
             returnType = ast.getReturnTypeName().get();
@@ -165,18 +165,18 @@ public final class Analyzer implements Ast.Visitor<Void> {
         if(thenStatements.isEmpty())
             throw new RuntimeException("IF statement is missing body after DO (No then statements)");
 
-        Scope thenScope = new Scope(scope); //Create new scope for then
+        scope = new Scope(scope); //Create new scope for then
         for(Ast.Stmt statement : thenStatements) //Do then
             visit(statement);
 
-        scope = thenScope.getParent(); //Escape thenscope
+        scope = scope.getParent(); //Escape thenscope
 
         if(!elseStatements.isEmpty()) //Else exists
         {
-            Scope elseScope = new Scope(scope); //Else scope entry
+            scope = new Scope(scope); //Else scope entry
             for(Ast.Stmt statement : elseStatements) //Do else
                 visit(statement);
-            scope = elseScope.getParent(); //Else scope exit
+            scope = scope.getParent(); //Else scope exit
         }
 
         return null;
@@ -195,13 +195,13 @@ public final class Analyzer implements Ast.Visitor<Void> {
         if(stmtList.isEmpty())
             throw new RuntimeException("For loop has no body");
 
-        Scope forScope = new Scope(scope);
-        forScope.defineVariable(ast.getName(), ast.getName(), Environment.Type.INTEGER, Environment.NIL);
+        scope = new Scope(scope);
+        scope.defineVariable(ast.getName(), ast.getName(), Environment.Type.INTEGER, Environment.NIL);
 
         for(Ast.Stmt stmt : stmtList)
             visit(stmt);
 
-        scope = forScope.getParent();
+        scope = scope.getParent();
 
         return null;
     }
@@ -225,12 +225,14 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
         List<Ast.Stmt> whileBody = ast.getStatements();
 
-        Scope whileScope = new Scope(scope);
+        scope = new Scope(scope);
 
         for(Ast.Stmt statement : whileBody)
         {
             visit(statement);
         }
+
+        scope = scope.getParent();
 
         return null;
     }
@@ -425,9 +427,11 @@ public final class Analyzer implements Ast.Visitor<Void> {
             if(!(received instanceof Ast.Expr.Access))
                 throw new RuntimeException("Attempting to access unaccessible field");
 
-            Scope objScope = received.getType().getScope(); //Found it
+            scope = received.getType().getScope(); //Found it
 
-            ast.setVariable(objScope.lookupVariable(ast.getName()));
+            ast.setVariable(scope.lookupVariable(ast.getName()));
+
+            scope = scope.getParent();
         }
         else //No receiver, just a field case
         {
@@ -452,9 +456,11 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
             Ast.Expr.Access received = (Ast.Expr.Access)receiver;
 
-            Scope objScope = received.getType().getScope();
+            scope = received.getType().getScope();
 
-            ast.setFunction(objScope.lookupFunction(ast.getName(), argList.size() + 1)); //Accounts for the IMPORTANT note
+            ast.setFunction(scope.lookupFunction(ast.getName(), argList.size() + 1)); //Accounts for the IMPORTANT note
+
+            scope = scope.getParent();
         }
         else //function()
         {
