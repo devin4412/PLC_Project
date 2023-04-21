@@ -123,20 +123,69 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Assignment ast) {
-        throw new UnsupportedOperationException(); //TODO
-        //return null;
+        print(ast.getReceiver(), " = ", ast.getValue(), ";");
+
+        return null;
     }
 
     @Override
     public Void visit(Ast.Stmt.If ast) {
-        throw new UnsupportedOperationException(); //TODO
-        //return null;
+        print("if (", ast.getCondition(), ") {");
+
+
+        List<Ast.Stmt> thenStmts = ast.getThenStatements();
+        List<Ast.Stmt> elseStmts = ast.getElseStatements();
+
+        indent++;
+
+        for(int i = 0; i < thenStmts.size(); i++)
+        {
+            newline(indent);
+            print(thenStmts.get(i));
+        }
+
+        newline(--indent);
+        print("}");
+
+        if(elseStmts.size() > 0)
+        {
+            print(" else {");
+
+            indent++;
+            for(int i = 0; i < elseStmts.size(); i++)
+            {
+                newline(indent);
+                print(elseStmts.get(i));
+            }
+
+            newline(--indent);
+            print("}");
+        }
+
+        return null;
     }
 
     @Override
     public Void visit(Ast.Stmt.For ast) {
         print("for (int ", ast.getName(), " : ", ast.getValue(), " {");
 
+        List<Ast.Stmt> stmtList = ast.getStatements();
+
+        if(stmtList.size() == 0)
+        {
+            print("}");
+        }
+        else
+        {
+            indent++;
+            for(int i = 0; i < stmtList.size(); i++)
+            {
+                newline(indent);
+                print(stmtList.get(i));
+            }
+            newline(--indent);
+            print("}");
+        }
 
         return null;
     }
