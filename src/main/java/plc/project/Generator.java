@@ -34,13 +34,48 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Source ast) {
         // create a "class Main {"
-        //     declare fields
-        //     declare "public static void main(String[] args) {
-        //          System.exit(new Main().main());
-        //      }
-        //      declare each of our methods
-        //      one of our methods is called main()!
-        // print "}" to close the class Main
+        print("public class Main {");
+
+        newline(0);
+        indent++;
+        List<Ast.Field> fieldList = ast.getFields();
+        for(int i = 0; i < fieldList.size(); i++)
+        {
+            if(i == fieldList.size() - 1)
+            {
+                print(fieldList.get(i));
+                newline(0); //spacer between final field and main
+            }
+            else
+            {
+                print(fieldList.get(i));
+                newline(indent);
+            }
+        }
+
+        newline(indent);
+        print("public static void main(String[] args) {");
+        newline(++indent);
+        print("System.exit(new Main().main());");
+        newline(--indent);
+        print("}");
+        newline(0); //spacer
+
+        List<Ast.Method> methodList = ast.getMethods();
+        for(Ast.Method method : methodList)
+        {
+            newline(indent);
+            print(method);
+            newline(0); //spacer
+            //taking advantage of the space between each method
+            //in order to avoid having to make a "final method" case
+            //since the last method is equally spaced from the bracket
+            //as it is from other methods.
+        }
+
+        newline(--indent);
+        print("}");
+
         return null;
     }
 
@@ -59,7 +94,7 @@ public final class Generator implements Ast.Visitor<Void> {
     public Void visit(Ast.Method ast) {
 
         //     return type JVM name                        space       function name              open parenthesis
-        print(ast.getFunction().getReturnType().getJvmName(), " ", ast.getFunction().getJvmName(), " (");
+        print(ast.getFunction().getReturnType().getJvmName(), " ", ast.getFunction().getJvmName(), "(");
 
         List<String> paramList = ast.getParameters();
         List<Environment.Type> paramTypeList = ast.getFunction().getParameterTypes();
