@@ -4,16 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="bad but this is as good as I have for now">
-      <change afterPath="$PROJECT_DIR$/src/test/java/plc/project/AnalyzerTests.java" afterDir="false" />
+    <list default="true" id="997a51d1-c57a-4c14-8906-07efebc84bed" name="Changes" comment="Finito">
+      <change afterPath="$PROJECT_DIR$/src/test/java/plc/project/GeneratorTests.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/test/java/plc/project/InterpreterBaselineTests.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/test/java/plc/project/InterpreterTests.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Ast.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Ast.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Environment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Environment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Analyzer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Analyzer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Interpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Interpreter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Scope.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Scope.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Lexer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/plc/project/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/plc/project/Parser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/plc/project/ParserTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/plc/project/ParserTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -97,8 +98,8 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="JUnit.AnalyzerTests.testRequireAssignable">
-    <configuration name="AnalyzerTests.testRequireAssignable" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.EndToEndGeneratorTests">
+    <configuration name="EndToEndGeneratorTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PLC_Project.test" />
       <extension name="coverage">
         <pattern>
@@ -107,9 +108,23 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="plc.project" />
-      <option name="MAIN_CLASS_NAME" value="plc.project.AnalyzerTests" />
-      <option name="METHOD_NAME" value="testRequireAssignable(java.lang.String,plc.project.Environment$Type,plc.project.Environment$Type,boolean)" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="MAIN_CLASS_NAME" value="plc.project.EndToEndGeneratorTests" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EndToEndInterpreterTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PLC_Project.test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="plc.project.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="plc.project" />
+      <option name="MAIN_CLASS_NAME" value="plc.project.EndToEndInterpreterTests" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -160,28 +175,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="InterpreterTests.testMethod" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="PLC_Project.test" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="plc.project.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="plc.project" />
-      <option name="MAIN_CLASS_NAME" value="plc.project.InterpreterTests" />
-      <option name="METHOD_NAME" value="testMethod(java.lang.String,plc.project.Ast$Method,java.util.List,java.lang.Object)" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.AnalyzerTests.testRequireAssignable" />
+        <item itemvalue="JUnit.EndToEndGeneratorTests" />
         <item itemvalue="JUnit.InterpreterBaselineTests" />
+        <item itemvalue="JUnit.EndToEndInterpreterTests" />
         <item itemvalue="JUnit.InterpreterTests" />
-        <item itemvalue="JUnit.InterpreterTests.testMethod" />
         <item itemvalue="JUnit.InterpreterBaselineTests.testFunctionCall" />
       </list>
     </recent_temporary>
@@ -204,7 +203,10 @@
       <workItem from="1679771436384" duration="6000" />
       <workItem from="1679771469367" duration="26149000" />
       <workItem from="1680455094031" duration="760000" />
-      <workItem from="1680737867288" duration="3371000" />
+      <workItem from="1680737867288" duration="42910000" />
+      <workItem from="1681995044139" duration="2335000" />
+      <workItem from="1682084073017" duration="25100000" />
+      <workItem from="1683120732796" duration="15090000" />
     </task>
     <task id="LOCAL-00001" summary="Added peek and match">
       <created>1675289740223</created>
@@ -318,7 +320,84 @@
       <option name="project" value="LOCAL" />
       <updated>1679799227258</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="RequireAssignable finished">
+      <created>1680741550883</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1680741550883</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Completed a few of them">
+      <created>1680833315537</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1680833315537</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Several more funcs completed">
+      <created>1680899048619</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1680899048619</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Several several more funcs completed">
+      <created>1680905988709</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1680905988709</updated>
+    </task>
+    <task id="LOCAL-00021" summary="All complete, save for method and return">
+      <created>1680915497798</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1680915497798</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Complete?">
+      <created>1680967973001</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1680967973001</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Fixed scope?">
+      <created>1680969007221</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1680969007221</updated>
+    </task>
+    <task id="LOCAL-00024" summary="error polishing">
+      <created>1680969473412</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1680969473412</updated>
+    </task>
+    <task id="LOCAL-00025" summary="First Commit">
+      <created>1682114451007</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1682114451007</updated>
+    </task>
+    <task id="LOCAL-00026" summary="95%">
+      <created>1682117194762</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1682117194762</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Finito">
+      <created>1682181971724</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1682181971724</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -337,9 +416,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Added peek and match" />
-    <MESSAGE value="Skeleton code added" />
-    <MESSAGE value="Working" />
     <MESSAGE value="LexIdentifier, LexNumber, and LexCharacter bugfixed" />
     <MESSAGE value="Preliminary &quot;finished&quot;" />
     <MESSAGE value="Bug polishing/Minor changes" />
@@ -349,25 +425,64 @@
     <MESSAGE value="Parser passes all given tests." />
     <MESSAGE value="Parser cleaned" />
     <MESSAGE value="Working first version. Going to clean and then submit." />
-    <MESSAGE value="Finito" />
     <MESSAGE value="Finito v2" />
     <MESSAGE value="Adding initial commit for Interpreter" />
     <MESSAGE value="Its broken but it is what I got" />
     <MESSAGE value="bad" />
     <MESSAGE value="bad but this is as good as I have for now" />
-    <option name="LAST_COMMIT_MESSAGE" value="bad but this is as good as I have for now" />
+    <MESSAGE value="RequireAssignable finished" />
+    <MESSAGE value="Completed a few of them" />
+    <MESSAGE value="Several more funcs completed" />
+    <MESSAGE value="Several several more funcs completed" />
+    <MESSAGE value="All complete, save for method and return" />
+    <MESSAGE value="Complete?" />
+    <MESSAGE value="Fixed scope?" />
+    <MESSAGE value="error polishing" />
+    <MESSAGE value="First Commit" />
+    <MESSAGE value="95%" />
+    <MESSAGE value="Finito" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finito" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <breakpoint enabled="true" type="java-exception">
+        <breakpoint type="java-exception">
           <properties class="org.junit.jupiter.params.converter.ArgumentConversionException" package="org.junit.jupiter.params.converter" />
           <option name="timeStamp" value="67" />
         </breakpoint>
+        <breakpoint type="java-exception">
+          <properties class="java.lang.UnsupportedOperationException" package="java.lang" />
+          <option name="timeStamp" value="139" />
+        </breakpoint>
+        <line-breakpoint type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/plc/project/Interpreter.java</url>
+          <line>188</line>
+          <option name="timeStamp" value="132" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/plc/project/EndToEndGeneratorTests.java</url>
+          <line>134</line>
+          <option name="timeStamp" value="145" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/plc/project/EndToEndGeneratorTests.java</url>
+          <line>151</line>
+          <option name="timeStamp" value="151" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/plc/project/Interpreter.java</url>
-          <line>174</line>
-          <option name="timeStamp" value="132" />
+          <line>507</line>
+          <option name="timeStamp" value="176" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/plc/project/Interpreter.java</url>
+          <line>97</line>
+          <option name="timeStamp" value="177" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/plc/project/InterpreterBaselineTests.java</url>
+          <line>58</line>
+          <option name="timeStamp" value="179" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -377,11 +492,5 @@
         <PinnedItemInfo parentTag="plc.project.Environment$Function" memberName="function" />
       </pinned-members>
     </pin-to-top-manager>
-    <watches-manager>
-      <configuration name="JUnit">
-        <watch expression="tokens" language="JAVA" />
-        <watch expression="((HashMap.Node)((HashMap)methodScope.functions).entrySet().toArray()[0]).getValue()" custom="java.util.HashMap.Node,java.util.HashMap" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>

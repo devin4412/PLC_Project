@@ -70,8 +70,12 @@ public final class Parser {
             }
             else
             {
+                if(!peek(Token.Type.IDENTIFIER, ":", Token.Type.IDENTIFIER))
+                    throw new ParseException("Missing type Name or colon in parseField", tokens.index);
+
                 String varName = tokens.get(0).getLiteral();
-                match(Token.Type.IDENTIFIER);
+                String varType = tokens.get(2).getLiteral();
+                match(Token.Type.IDENTIFIER, ":", Token.Type.IDENTIFIER);
 
                 if(peek("="))
                 {
@@ -82,7 +86,7 @@ public final class Parser {
                     if(!match(";"))
                         throw new ParseException("Missing semicolon in field", tokens.index);
 
-                    return new Ast.Field(varName, Optional.of(rhs));
+                    return new Ast.Field(varName, varType, Optional.of(rhs));
                 }
                 else
                 {
@@ -97,7 +101,7 @@ public final class Parser {
                         if(!semiMatch)
                             throw new ParseException("Missing semicolon in field", tokens.index);
 
-                        return new Ast.Field(varName, Optional.empty());
+                        return new Ast.Field(varName, varType, Optional.empty());
                     }
                 }
             }
@@ -121,6 +125,7 @@ public final class Parser {
             throw new ParseException("Method declaration missing (", tokens.index);
 
         List<String> paramsList = new ArrayList<String>();
+        List<String> typesList = new ArrayList<String>();
         boolean firstpass = true;
         boolean hasPreComma = true;
 
@@ -131,14 +136,25 @@ public final class Parser {
             else
                 hasPreComma = match(",");
 
-            if(hasPreComma && peek(Token.Type.IDENTIFIER))
+            if(hasPreComma && peek(Token.Type.IDENTIFIER, ":", Token.Type.IDENTIFIER))
             {
                 paramsList.add(tokens.get(0).getLiteral());
-                match(Token.Type.IDENTIFIER);
+                typesList.add(tokens.get(2).getLiteral());
+                match(Token.Type.IDENTIFIER, ":", Token.Type.IDENTIFIER);
                 hasPreComma = false;
             }
             else
                 throw new ParseException("Invalid parameters in method call", tokens.index);
+        }
+
+        boolean hasReturnType = false;
+        String returnType = "";
+        if(peek(":", Token.Type.IDENTIFIER))
+        {
+            match(":");
+            returnType = tokens.get(0).getLiteral();
+            hasReturnType = true;
+            match(Token.Type.IDENTIFIER);
         }
 
         if(!match("DO"))
@@ -152,7 +168,10 @@ public final class Parser {
             statementList.add(parseStatement());
         }
 
-        return new Ast.Method(methodName, paramsList, statementList);
+        if(hasReturnType)
+            return new Ast.Method(methodName, paramsList, typesList, Optional.of(returnType), statementList);
+        else
+            return new Ast.Method(methodName, paramsList, typesList, Optional.empty(), statementList);
     }
 
     /**
@@ -230,11 +249,24 @@ public final class Parser {
         String lhs = tokens.get(0).getLiteral();
         match(Token.Type.IDENTIFIER);
 
+        boolean hasVarType = false;
+        String varType = "";
+        if(peek(":", Token.Type.IDENTIFIER))
+        {
+            hasVarType = true;
+            match(":");
+            varType = tokens.get(0).getLiteral();
+            match(Token.Type.IDENTIFIER);
+        }
+
         if(!peek("=")) //no equal sign case
         {
             if(!match(";"))
                 throw new ParseException("Missing semicolon in declaration statement", tokens.index);
-            return new Ast.Stmt.Declaration(lhs, Optional.empty());
+            if(hasVarType)
+                return new Ast.Stmt.Declaration(lhs, Optional.of(varType), Optional.empty());
+            else
+                return new Ast.Stmt.Declaration(lhs, Optional.empty(), Optional.empty());
         }
 
         match("=");
@@ -243,7 +275,10 @@ public final class Parser {
         if(!match(";"))
             throw new ParseException("Missing semicolon in declaration statement", tokens.index);
 
-        return new Ast.Stmt.Declaration(lhs, Optional.of(rhs));
+        if(hasVarType)
+            return new Ast.Stmt.Declaration(lhs, Optional.of(varType), Optional.of(rhs));
+        else
+            return new Ast.Stmt.Declaration(lhs, Optional.empty(), Optional.of(rhs));
     }
 
     /**

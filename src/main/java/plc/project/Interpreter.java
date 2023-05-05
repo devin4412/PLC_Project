@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     private Scope scope = new Scope(null);
+    private Scope methodDefinitionScope = null;
 
     public Interpreter(Scope parent) {
         scope = new Scope(parent);
@@ -59,25 +60,34 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
         List<String> params = ast.getParameters();
         List<Ast.Stmt> statements = ast.getStatements();
-        Scope methodDeclaration = new Scope(scope);
+
+        methodDefinitionScope = scope;
 
         scope.defineFunction(ast.getName(), arity, args -> { //I can't get this to work and I am running out of time :(
-            for(int i = 0; i < arity; i++) {
-                methodDeclaration.defineVariable(params.get(i), args.get(i));
-            } //Define new variables in new scope from parameter string names, init to NIL
 
-            for(int i = 0; i < statements.size(); i++) {
-                try {
-                    Environment.PlcObject capture = visit(statements.get(i));
-                }
-                catch(Return r)
+            scope = new Scope(methodDefinitionScope); //Set the scope to be a new child of the scope *where the funciton was defined*
+
+            for(int i = 0; i < arity; i++)
+            {
+                scope.defineVariable(params.get(i), args.get(i));
+            }
+
+            for(int i = 0; i < statements.size(); i++)
+            {
+                try
                 {
-                    scope = methodDeclaration.getParent();
+                    Environment.PlcObject capt = visit(statements.get(i));
+                }
+                catch (Return r)
+                {
+                    scope = scope.getParent();
                     return r.value;
                 }
             }
-            scope = methodDeclaration.getParent();
+
+            scope = scope.getParent();
             return Environment.NIL;
+
         });
 
         return Environment.NIL;
@@ -162,10 +172,14 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Stmt.For ast) {
         Iterable iterator = requireType(Iterable.class, visit(ast.getValue()));
+
         for(Object obj : iterator) //for each in the iterator
         {
             try {
                 scope = new Scope(scope); //New scope created por for loop
+
+                scope.defineVariable(ast.getName(), (Environment.PlcObject)obj);
+
                 for(Ast.Stmt statement : ast.getStatements())
                     visit(statement);
             } finally {
@@ -480,7 +494,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         List<Environment.PlcObject> objectArgs = new ArrayList<Environment.PlcObject>();
         for(Ast.Expr expr : args)
         {
-            objectArgs.add(Environment.create(expr));
+            objectArgs.add(visit(expr));
         }
 
         if(ast.getReceiver().isPresent())

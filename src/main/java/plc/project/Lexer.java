@@ -180,6 +180,17 @@ public final class Lexer {
         }
 
         String[] numberStr = numList.toArray(new String[0]);
+
+        //Escape your operators
+
+        for(int z = 0; z < numberStr.length; z++)
+        {
+            if(numberStr[z].equals("+"))
+                numberStr[z] = "\\+";
+            if(numberStr[z].equals("-"))
+                numberStr[z] = "\\-";
+        }
+
         boolean matches = match(numberStr);
 
         if(matches && decimal)

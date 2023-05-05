@@ -28,6 +28,15 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Source ast) {
+
+        List<Ast.Field> fieldsList = ast.getFields();
+        for(Ast.Field field : fieldsList)
+            visit(field);
+
+        List<Ast.Method> methodsList = ast.getMethods();
+        for(Ast.Method method : methodsList)
+            visit(method);
+
         Environment.Function main = null;
         try
         {
@@ -39,14 +48,6 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
         if(main.getReturnType().getName().compareTo("Integer") != 0)
             throw new RuntimeException("Ast.Source has main, but main is missing correct return type of Integer");
-
-        List<Ast.Field> fieldsList = ast.getFields();
-        for(Ast.Field field : fieldsList)
-            visit(field);
-
-        List<Ast.Method> methodsList = ast.getMethods();
-        for(Ast.Method method : methodsList)
-            visit(method);
 
         return null;
     }
